@@ -41,7 +41,10 @@ func (i *Integration) initialize(c platform.Client) error {
 func (i *Integration) createToHook(c platform.Client) error {
 	fmt.Println("Creating To Hook")
 	wh := platform.IncomingWebhook{}
-	channelID, err := c.FindChannelIDByName(i.Config.ChannelName, i.Config.TeamName)
+	channelID, err := c.FindChannelIDByName(
+		i.Config.ToMattermost.ChannelName,
+		i.Config.TeamName,
+	)
 	if err != nil {
 		return err
 	}
@@ -59,7 +62,7 @@ func (i *Integration) createFromHook(c platform.Client) error {
 	wh := platform.OutgoingWebhook{}
 
 	wh.DisplayName = fmt.Sprintf("(IntegrationServer) %v", i.Name)
-	wh.TriggerWords = i.Config.TriggerWords
+	wh.TriggerWords = i.Config.FromMattermost.TriggerWords
 	wh.CallbackURLs = i.createCallbacks()
 
 	res, err := c.CreateOutgoingWebhook(i.Config.TeamName, &wh)
@@ -71,8 +74,8 @@ func (i *Integration) createFromHook(c platform.Client) error {
 }
 
 func (i *Integration) createCallbacks() []string {
-	callbacks := make([]string, len(i.Config.IncomingRoutes))
-	for idx, v := range i.Config.IncomingRoutes {
+	callbacks := make([]string, len(i.Config.FromMattermost.IncomingRoutes))
+	for idx, v := range i.Config.FromMattermost.IncomingRoutes {
 		callbacks[idx] = i.Host + v
 	}
 	fmt.Println("Callback Count:", len(callbacks))

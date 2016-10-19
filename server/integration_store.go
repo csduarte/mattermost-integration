@@ -8,10 +8,14 @@ import (
 	"github.com/csduarte/integrationserver/platform"
 )
 
+const (
+	//StorageLocation file to store integration data
+	StorageLocation = "integrations.json"
+)
+
 type integrationStore struct {
-	StorageLocation string        `json:"storageLocation"`
-	Integrations    []Integration `json:"integrations"`
-	clients         map[clientKey]*platform.Client
+	Integrations []*Integration `json:"integrations"`
+	clients      map[clientKey]*platform.Client
 }
 
 type clientKey struct {
@@ -22,7 +26,6 @@ type clientKey struct {
 
 func restoreIntegrationStore(path string) (*integrationStore, error) {
 	store := integrationStore{}
-	store.StorageLocation = path
 	store.clients = make(map[clientKey]*platform.Client)
 	err := store.restore()
 	if err != nil {
@@ -39,7 +42,7 @@ func restoreIntegrationStore(path string) (*integrationStore, error) {
 }
 
 func (is *integrationStore) restore() error {
-	file, err := os.Open(is.StorageLocation)
+	file, err := os.Open(StorageLocation)
 	defer file.Close()
 	if err != nil {
 		return err
@@ -53,13 +56,13 @@ func (is *integrationStore) restore() error {
 }
 
 func (is *integrationStore) create() error {
-	file, err := os.Create(is.StorageLocation)
+	file, err := os.Create(StorageLocation)
 	defer file.Close()
 	if err != nil {
 		return fmt.Errorf("Could not create store - %v", err)
 	}
 	if is.Integrations == nil {
-		is.Integrations = []Integration{}
+		is.Integrations = []*Integration{}
 	}
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(is)
@@ -70,13 +73,13 @@ func (is *integrationStore) create() error {
 }
 
 func (is *integrationStore) save() error {
-	file, err := os.OpenFile(is.StorageLocation, os.O_WRONLY, 0666)
+	file, err := os.OpenFile(StorageLocation, os.O_WRONLY, 0666)
 	defer file.Close()
 	if err != nil {
 		return fmt.Errorf("Could not open store for save - %v", err)
 	}
 	if is.Integrations == nil {
-		is.Integrations = []Integration{}
+		is.Integrations = []*Integration{}
 	}
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(is)
@@ -89,14 +92,14 @@ func (is *integrationStore) save() error {
 func (is *integrationStore) matchIntegrations(isc Config) error {
 	hasAdded := false
 	for _, ic := range isc.Integrations {
-		// if found := is.find(ic); found == nil {
-		// hasAdded = true
-		newInt, err := is.addIntegration(isc, ic)
-		if err != nil {
-			return err
+		if found := is.findByConfig(ic); found == nil {
+			hasAdded = true
+			newInt, err := is.addIntegration(isc, *ic)
+			if err != nil {
+				return err
+			}
+			is.Integrations = append(is.Integrations, newInt)
 		}
-		is.Integrations = append(is.Integrations, *newInt)
-		// }
 	}
 	if hasAdded {
 		is.save()
@@ -136,10 +139,19 @@ func (is *integrationStore) clientForConfig(inc integrationConfig) (*platform.Cl
 	return c, nil
 }
 
-func (is *integrationStore) find(c integrationConfig) *Integration {
+func (is *integrationStore) findByConfig(c *integrationConfig) *Integration {
 	for _, i := range is.Integrations {
 		if i.Name == c.Name && i.ChatServer == c.Server {
-			return &i
+			return i
+		}
+	}
+	return nil
+}
+
+func (is *integrationStore) findByName(name string) *Integration {
+	for _, i := range is.Integrations {
+		if i.Name == name {
+			return i
 		}
 	}
 	return nil
