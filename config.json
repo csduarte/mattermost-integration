@@ -9,12 +9,27 @@
       "name": "weatherbot",
       "server": "http://localhost:8065",
       "teamName": "mchat",
-      "username": "csduarte",
+      "username": "username",
       "password": "password",
       "fromMattermost": {
         "triggerWords": ["weather"],
         "triggerExact": true,
         "incomingRoutes": ["/incoming1"]
+      },
+      "toMattermost": {
+        "channelName": "town-square"
+      }
+    },
+    {
+      "name": "giphy",
+      "server": "http://localhost:8065",
+      "teamName": "mchat",
+      "username": "username",
+      "password": "password",
+      "fromMattermost": {
+        "triggerWords": ["giphy"],
+        "triggerExact": true,
+        "incomingRoutes": ["/giphy"]
       },
       "toMattermost": {
         "channelName": "town-square"

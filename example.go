@@ -5,23 +5,22 @@ import (
 	"os"
 
 	s "github.com/csduarte/mattermost-integration/server"
-)
-
-const (
-	server1 = "mattermost-staging-generic"
-	server2 = "mattermost-production"
+	"github.com/paddycarey/gophy"
 )
 
 func main() {
 	bot, err := s.NewIntegrationServer("./config.json")
 	if err != nil {
-		fmt.Println("Startup error -", err)
+		fmt.Println("Initialization error -", err)
 		os.Exit(1)
 	}
 
-	bot.HandleAll("me", getGiphyImage)
-	bot.HandleSome([]string{server1, server2}, "weather", getWeather)
-	bot.HandleOne(server1, "traffic", getSpecialWeather)
+	bot.HandleAll("help", sendHelp)
+	bot.HandleSome([]string{"giphy", "weatherbot"}, "ping", imAlive)
+
+	bot.HandleOne("giphy", ".*", getGiphyImage)
+	bot.HandleOne("weatherbot", "inside", getWeather)
+	bot.HandleOne("weatherbot", ".*", getSpecialWeather)
 
 	err = bot.Start()
 	if err != nil {
@@ -29,18 +28,38 @@ func main() {
 	}
 }
 
-func getGiphyImage(context s.Context) {
-	// get giphy image
-	context.AddAttachment("imageData")
-	context.Respond("Image")
+func sendHelp(context *s.Context) {
+	context.SetMessage("Here is your help!")
+	context.SetIconURL("https://media2.giphy.com/media/snJ4LpyvG7OYE/200w.gif#2")
 }
 
-func getWeather(context s.Context) {
-	// do some work
-	context.Respond("The weather is nice, but getting colder")
+func imAlive(context *s.Context) {
+	context.SetMessage("Pong")
 }
 
-func getSpecialWeather(context s.Context) {
-	// do some work
-	context.Respond("The weather is especially nice, but getting warmer")
+func getGiphyImage(context *s.Context) {
+	co := &gophy.ClientOptions{}
+	client := gophy.NewClient(co)
+
+	gifs, total, err := client.SearchGifs("dog", "pg-13", 1, 0)
+	if err != nil {
+		panic(err)
+	}
+
+	if total > 0 {
+		r := context.SeparateResponse()
+		r.SetMessage("Boohyah Grandma")
+		r.AddImageURL(gifs[0].URL)
+		r.Send()
+	} else {
+		context.SetMessage("Sorry, pal.")
+	}
+}
+
+func getWeather(context *s.Context) {
+	context.SetMessage("It's normal")
+}
+
+func getSpecialWeather(context *s.Context) {
+	context.SetMessage("It's not normal")
 }

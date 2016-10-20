@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
@@ -87,6 +88,42 @@ func OutgoingWebhookFromJSON(data io.Reader) *OutgoingWebhook {
 		return &o
 	}
 	return nil
+}
+
+// OutgoingWebhookPayloadFromJSON decode from json
+func OutgoingWebhookPayloadFromJSON(data io.Reader) *OutgoingWebhookPayload {
+	decoder := json.NewDecoder(data)
+	var o OutgoingWebhookPayload
+	err := decoder.Decode(&o)
+	if err == nil {
+		return &o
+	}
+	return nil
+}
+
+// OutgoingWebhookPayloadFromForm decodes from url encoding
+func OutgoingWebhookPayloadFromForm(data io.Reader) *OutgoingWebhookPayload {
+	var o OutgoingWebhookPayload
+	d, err := ioutil.ReadAll(data)
+	if err != nil {
+		return nil
+	}
+	f, err := url.ParseQuery(string(d))
+	if err != nil {
+		return nil
+	}
+	o.Token = f.Get("token")
+	o.TeamID = f.Get("team_id")
+	o.TeamDomain = f.Get("team_domain")
+	o.ChannelID = f.Get("channel_id")
+	o.ChannelName = f.Get("channel_name")
+	// o.Timestamp = f.Get("timestamp")
+	o.UserID = f.Get("user_id")
+	o.UserName = f.Get("user_name")
+	o.PostID = f.Get("post_id")
+	o.Text = f.Get("text")
+	o.TriggerWord = f.Get("trigger_word")
+	return &o
 }
 
 // IsValid check valid webhook

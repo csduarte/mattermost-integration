@@ -1,4 +1,4 @@
-package integrationserver
+package server
 
 import "fmt"
 

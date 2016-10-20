@@ -1,11 +1,11 @@
-package integrationserver
+package server
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
 
-	"github.com/csduarte/integrationserver/platform"
+	"github.com/csduarte/mattermost-integration/platform"
 )
 
 const (
@@ -90,20 +90,22 @@ func (is *integrationStore) save() error {
 }
 
 func (is *integrationStore) matchIntegrations(isc Config) error {
-	hasAdded := false
 	for _, ic := range isc.Integrations {
 		if found := is.findByConfig(ic); found == nil {
-			hasAdded = true
 			newInt, err := is.addIntegration(isc, *ic)
 			if err != nil {
 				return err
 			}
 			is.Integrations = append(is.Integrations, newInt)
+		} else {
+			c, err := is.clientForConfig(*ic)
+			if err != nil {
+				return err
+			}
+			found.initialize(c)
 		}
 	}
-	if hasAdded {
-		is.save()
-	}
+	is.save()
 	return nil
 }
 
@@ -114,7 +116,7 @@ func (is *integrationStore) addIntegration(isc Config, inc integrationConfig) (*
 		return nil, fmt.Errorf("Failed to add webhooks for %q - %v", inc.Name, err)
 	}
 	fmt.Println("Initializing")
-	err = i.initialize(*c)
+	err = i.initialize(c)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to add webhooks for %q - %v", inc.Name, err)
 	}
@@ -151,6 +153,15 @@ func (is *integrationStore) findByConfig(c *integrationConfig) *Integration {
 func (is *integrationStore) findByName(name string) *Integration {
 	for _, i := range is.Integrations {
 		if i.Name == name {
+			return i
+		}
+	}
+	return nil
+}
+
+func (is *integrationStore) findByToken(token string) *Integration {
+	for _, i := range is.Integrations {
+		if i.FromMM.Token == token {
 			return i
 		}
 	}

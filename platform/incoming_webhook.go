@@ -41,6 +41,15 @@ func (o *IncomingWebhook) ToJSON() string {
 	return string(b)
 }
 
+// ToJSON Webhook to json
+func (o *IncomingWebhookRequest) ToJSON() string {
+	b, err := json.Marshal(o)
+	if err != nil {
+		return ""
+	}
+	return string(b)
+}
+
 // IncomingWebhookFromJSON webhook from json
 func IncomingWebhookFromJSON(data io.Reader) *IncomingWebhook {
 	decoder := json.NewDecoder(data)

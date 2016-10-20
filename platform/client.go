@@ -259,7 +259,7 @@ func (c *Client) CreateOutgoingWebhook(team string, hook *OutgoingWebhook) (*Res
 
 // PostToWebhook sent payload to webhook
 func (c *Client) PostToWebhook(id, payload string) (*Result, *ClientError) {
-	r, err := c.DoPost("/hooks/"+id, payload, "application/x-www-form-urlencoded")
+	r, err := c.DoPost("/hooks/"+id, payload, "application/json")
 	if err != nil {
 		return nil, err
 	}
