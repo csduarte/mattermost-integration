@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 )
 
@@ -14,7 +13,6 @@ type IntegrationServer struct {
 	Config
 	Store *integrationStore
 	Mux   *Mux
-	// Client *platform.Client
 }
 
 // NewIntegrationServer takes config path and returns IntegrationServer
@@ -133,15 +131,7 @@ func (i *IntegrationServer) primaryHandler(w http.ResponseWriter, r *http.Reques
 
 	for _, ent := range entries {
 
-		m, err := regexp.Match(ent.pattern, []byte(command))
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Bad Pattern Registered"))
-			fmt.Printf("Bad Pattern Registered - %v", ent.pattern)
-			return
-		}
-
-		if !m {
+		if m := ent.pattern.Match([]byte(command)); !m {
 			continue
 		}
 

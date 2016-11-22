@@ -15,6 +15,7 @@ type Config struct {
 // integrationConfig holds information on a specfic integration
 type integrationConfig struct {
 	Name           string
+	DisplayName    string
 	Server         string
 	TeamName       string
 	Username       string

@@ -67,10 +67,10 @@ func (m *MattermostMessage) AttachmentAuthorName(text string) {
 	a.AuthorName = text
 }
 
-// AttachmentColor sets attachment color
-func (m *MattermostMessage) AttachmentColor(cssColor string) {
+// AttachmentColor sets attachment color (ex: #333333)
+func (m *MattermostMessage) AttachmentColor(cssHexColor string) {
 	a := m.ensureAttachments()
-	a.Color = cssColor
+	a.Color = cssHexColor
 }
 
 // AttachmentFallback sets attachment fallback text
@@ -116,26 +116,26 @@ func (m *MattermostMessage) AttachmentAddField(title, text string, short bool) *
 	f.Short = short
 	f.Title = title
 	f.Value = text
-	a.Fields = append(a.Fields, f)
+	a.Fields = append(a.Fields, &f)
 	return &f
 }
 
 // ensureAttachments make sure that the attachments has been set
 func (m *MattermostMessage) ensureAttachments() *platform.Attachment {
 	if m.Attachments == nil {
-		m.Attachments = []platform.Attachment{platform.Attachment{}}
+		m.Attachments = []*platform.Attachment{&platform.Attachment{}}
 	}
 	a := m.Attachments[0]
 	if a.Fallback == "" {
 		a.Fallback = "This message is not supported by your client."
 	}
-	return &a
+	return a
 }
 
 func (m *MattermostMessage) ensureFields() *platform.Attachment {
 	a := m.ensureAttachments()
 	if a.Fields == nil {
-		a.Fields = []platform.AttachmentField{}
+		a.Fields = []*platform.AttachmentField{}
 	}
 	return a
 }

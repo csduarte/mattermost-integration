@@ -28,7 +28,7 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 func (c *Context) SeparateResponse() *MattermostMessage {
 	m := NewMattermostMessage(c.payload.ChannelName)
 	m.integration = c.i
-	m.Username = c.i.Name
+	m.Username = c.i.Config.DisplayName
 	return m
 }
 
@@ -36,6 +36,12 @@ func (c *Context) SeparateResponse() *MattermostMessage {
 func (c *Context) SetIconURL(url string) {
 	c.ensureResponse()
 	c.response.IconURL = url
+}
+
+// SetUsername as string
+func (c *Context) SetUsername(name string) {
+	c.ensureResponse()
+	c.response.Username = name
 }
 
 // SetMessage to given context
@@ -51,6 +57,10 @@ func (c *Context) addIntegration(i *Integration) {
 func (c *Context) ensureResponse() {
 	if c.response == nil {
 		c.response = &platform.IncomingWebhookRequest{}
-		c.response.Username = "Bot!"
+		if c.i.Config.DisplayName != "" {
+			c.response.Username = c.i.Config.DisplayName
+		} else {
+			c.response.Username = c.i.Name
+		}
 	}
 }

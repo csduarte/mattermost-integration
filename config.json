@@ -8,7 +8,7 @@
     {
       "name": "weatherbot",
       "server": "http://localhost:8065",
-      "teamName": "mchat",
+      "teamName": "team",
       "username": "username",
       "password": "password",
       "fromMattermost": {
@@ -23,13 +23,44 @@
     {
       "name": "giphy",
       "server": "http://localhost:8065",
-      "teamName": "mchat",
+      "teamName": "team",
       "username": "username",
       "password": "password",
       "fromMattermost": {
         "triggerWords": ["giphy"],
         "triggerExact": true,
         "incomingRoutes": ["/giphy"]
+      },
+      "toMattermost": {
+        "channelName": "town-square"
+      }
+    },
+    {
+      "name": "mint",
+      "server": "http://localhost:8065",
+      "teamName": "team",
+      "username": "username",
+      "password": "password",
+      "fromMattermost": {
+        "triggerWords": ["mint"],
+        "triggerExact": true,
+        "incomingRoutes": ["/mint"]
+      },
+      "toMattermost": {
+        "channelName": "town-square"
+      }
+    },
+    {
+      "name": "homer",
+      "displayName": "Homer Simpson",
+      "server": "http://localhost:8065",
+      "teamName": "team",
+      "username": "username",
+      "password": "password",
+      "fromMattermost": {
+        "triggerWords": ["homer"],
+        "triggerExact": true,
+        "incomingRoutes": ["/homer"]
       },
       "toMattermost": {
         "channelName": "town-square"

@@ -25,23 +25,23 @@ type IncomingWebhookRequest struct {
 	IconURL     string                 `json:"icon_url"`
 	ChannelName string                 `json:"channel"`
 	Props       map[string]interface{} `json:"props"`
-	Attachments []Attachment           `json:"attachments"`
+	Attachments []*Attachment          `json:"attachments"`
 	Type        string                 `json:"type"`
 }
 
 // Attachment represents the fields for a Webhook Request
 type Attachment struct {
-	Fallback   string            `json:"fallback"`
-	Color      string            `json:"color"`
-	Pretext    string            `json:"pretext"`
-	Text       string            `json:"text"`
-	AuthorName string            `json:"author_name"`
-	AuthorIcon string            `json:"author_icon"`
-	AuthorLink string            `json:"author_link"`
-	Title      string            `json:"title"`
-	TitleLink  string            `json:"title_link"`
-	Fields     []AttachmentField `json:"fields"`
-	ImageURL   string            `json:"image_url"`
+	Fallback   string             `json:"fallback"`
+	Color      string             `json:"color"`
+	Pretext    string             `json:"pretext"`
+	Text       string             `json:"text"`
+	AuthorName string             `json:"author_name"`
+	AuthorIcon string             `json:"author_icon"`
+	AuthorLink string             `json:"author_link"`
+	Title      string             `json:"title"`
+	TitleLink  string             `json:"title_link"`
+	Fields     []*AttachmentField `json:"fields"`
+	ImageURL   string             `json:"image_url"`
 }
 
 // AttachmentField represent a section in Attachment

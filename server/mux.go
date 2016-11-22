@@ -1,6 +1,9 @@
 package server
 
-import "sync"
+import (
+	"regexp"
+	"sync"
+)
 
 // Mux takes the singles from the server and maps to muxEntry
 type Mux struct {
@@ -10,7 +13,7 @@ type Mux struct {
 
 type muxEntry struct {
 	h            Handler
-	pattern      string
+	pattern      *regexp.Regexp
 	integrations *Integration
 }
 
@@ -23,12 +26,18 @@ func NewMux() *Mux {
 	return &d
 }
 
-func (d *Mux) add(in *Integration, pattern string, h Handler) {
+func (d *Mux) add(in *Integration, pattern string, h Handler) error {
 	d.mu.Lock()
 	n := in.Name
 	if d.m[n] == nil {
 		d.m[n] = []*muxEntry{}
 	}
-	d.m[n] = append(d.m[n], &muxEntry{h, pattern, in})
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		d.mu.Unlock()
+		return err
+	}
+	d.m[n] = append(d.m[n], &muxEntry{h, re, in})
 	d.mu.Unlock()
+	return nil
 }

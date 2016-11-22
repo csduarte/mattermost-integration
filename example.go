@@ -20,8 +20,12 @@ func main() {
 
 	bot.HandleOne("giphy", ".*", getGiphyImage)
 	bot.HandleOne("weatherbot", ".*", getWeather)
-	bot.HandleOne("mint", "basic", testBasic)
-	bot.HandleOne("mint", "full", testFull)
+
+	bot.HandleOne("homer", "tell.*donuts", donutInfo)
+	bot.HandleOne("homer", "tell.*family.*", familyInfo)
+	bot.HandleOne("homer", ".*", homerMissing)
+
+	bot.HandleAll(".*", sendHelp)
 
 	err = bot.Start()
 	if err != nil {
@@ -50,7 +54,6 @@ func getGiphyImage(context *s.Context) {
 	if total > 0 {
 		r := context.SeparateResponse()
 		r.SetMessage("Boohyah Grandma")
-		// r.AttachmentImageURL("http://giphy.com/gifs/cute-dog-running-13mLwGra9bNEKQ")
 		r.Send()
 	} else {
 		context.SetMessage("Sorry, pal.")
@@ -65,10 +68,36 @@ func getSpecialWeather(context *s.Context) {
 	context.SetMessage("It's not normal")
 }
 
-func testBasic(context *s.Context) {
-	context.SetMessage("Hi you")
+func homerMissing(context *s.Context) {
+	context.SetIconURL("https://media1.giphy.com/media/sTUWqCKtxd01W/200.gif#7")
+	context.SetMessage("D'oh! I have no idea what you're talking about. I am so smrt")
 }
 
-func testFull(context *s.Context) {
-	context.SetMessage("Hi me")
+func donutInfo(context *s.Context) {
+	r := context.SeparateResponse()
+	r.SetUsername("Homer Simpson")
+	r.SetIconURL("https://media1.giphy.com/media/sTUWqCKtxd01W/200.gif#7")
+	r.AttachmentTitle("My Favorite Donut Title")
+	r.AttachmentTitleLink("https://en.wikipedia.org/wiki/Doughnut")
+	r.AttachmentImageURL("http://superawesomevectors.com/wp-content/uploads/2014/03/free-vector-donut-drawing-800x565.jpg")
+	r.AttachmentAuthorIcon("http://vignette3.wikia.nocookie.net/simpsons/images/b/b0/HomerSimpson5.gif/revision/latest?cb=20141025153213")
+	r.AttachmentAuthorLink("https://en.wikipedia.org/wiki/Homer_Simpson")
+	r.AttachmentAuthorName("Homer")
+	r.AttachmentColor("#fe4ea1")
+	r.AttachmentFallback("This is my fallback message when the client doesn't support attachments -- about donuts")
+	r.AttachmentPretext("The message sent before the wonderful donut attachment")
+	r.AttachmentText("This is the actual message about donuts")
+	r.AttachmentAddField("Full Row", "A really really long message about donuts", false)
+	r.AttachmentAddField("Half Row", "A shorter message about donuts", true)
+	r.AttachmentAddField("Other Half Row", "Another short message about donuts", true)
+	r.Send()
+}
+
+func familyInfo(context *s.Context) {
+	r := context.SeparateResponse()
+	r.SetUsername("Homer Simpson")
+	r.SetIconURL("https://media1.giphy.com/media/sTUWqCKtxd01W/200.gif#7")
+	r.AttachmentTitle("My Stupid Family")
+	r.AttachmentImageURL("http://assets2.ignimgs.com/2014/10/01/the-simpsons-couch-1280jpg-552cbc_1280w.jpg")
+	r.Send()
 }
