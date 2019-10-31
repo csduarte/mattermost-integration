@@ -4,45 +4,52 @@ import (
 	"fmt"
 	"os"
 
-	s "github.com/csduarte/mattermost-integration/server"
+	bs "github.com/csduarte/mattermost-integration/botserver"
 	"github.com/paddycarey/gophy"
 )
 
 func main() {
-	bot, err := s.NewIntegrationServer("./config.json")
+	server, err := bs.NewServer("./config.json")
 	if err != nil {
 		fmt.Println("Initialization error -", err)
 		os.Exit(1)
 	}
 
-	bot.HandleAll("help", sendHelp)
-	bot.HandleAll("ping", imAlive)
+	// Handles all mattermost incoming
+	server.HandleAllChatter("help", sendHelp)
 
-	bot.HandleOne("giphy", ".*", getGiphyImage)
-	bot.HandleOne("weatherbot", ".*", getWeather)
+	// Handles all timmer triggers, not yet implemented
+	// server.HandleAllTimmers(imAlive)
 
-	bot.HandleOne("homer", "tell.*donuts", donutInfo)
-	bot.HandleOne("homer", "tell.*family.*", familyInfo)
-	bot.HandleOne("homer", ".*", homerMissing)
+	// Handles all external triggers, not yet implemented
+	// server.HandleAllExternal(imAlive)
 
-	bot.HandleAll(".*", sendHelp)
+	server.HandleChatter("giphy", ".*", getGiphyImage)
+	// server.HandleExternal("weatherbot", getWeather)
+	// server.HandleTimmer("timmmer", getWeather)
 
-	err = bot.Start()
+	server.HandleChatter("homer", "tell.*donuts", donutInfo)
+	server.HandleChatter("homer", "tell.*family.*", familyInfo)
+	server.HandleChatter("homer", ".*", homerMissing)
+	server.HandleSomeChatter([]{"home", "giphy"}, ".*", sendHelp)
+	server.HandleAllChatter(".*", sendHelp)
+
+	err = server.Start()
 	if err != nil {
 		panic(err)
 	}
 }
 
-func sendHelp(context *s.Context) {
+func sendHelp(context *bs.Context) {
 	context.SetMessage("Here is your help!")
 	context.SetIconURL("https://media2.giphy.com/media/snJ4LpyvG7OYE/200w.gif#2")
 }
 
-func imAlive(context *s.Context) {
+func imAlive(context *bs.Context) {
 	context.SetMessage("Pong")
 }
 
-func getGiphyImage(context *s.Context) {
+func getGiphyImage(context *bs.Context) {
 	co := &gophy.ClientOptions{}
 	client := gophy.NewClient(co)
 	gifs, total, err := client.SearchGifs("dog", "pg-13", 1, 0)
@@ -60,20 +67,20 @@ func getGiphyImage(context *s.Context) {
 	}
 }
 
-func getWeather(context *s.Context) {
+func getWeather(context *bs.Context) {
 	context.SetMessage("It's normal")
 }
 
-func getSpecialWeather(context *s.Context) {
+func getSpecialWeather(context *bs.Context) {
 	context.SetMessage("It's not normal")
 }
 
-func homerMissing(context *s.Context) {
+func homerMissing(context *bs.Context) {
 	context.SetIconURL("https://media1.giphy.com/media/sTUWqCKtxd01W/200.gif#7")
 	context.SetMessage("D'oh! I have no idea what you're talking about. I am so smrt")
 }
 
-func donutInfo(context *s.Context) {
+func donutInfo(context *bs.Context) {
 	r := context.SeparateResponse()
 	r.SetUsername("Homer Simpson")
 	r.SetIconURL("https://media1.giphy.com/media/sTUWqCKtxd01W/200.gif#7")
@@ -93,7 +100,7 @@ func donutInfo(context *s.Context) {
 	r.Send()
 }
 
-func familyInfo(context *s.Context) {
+func familyInfo(context *bs.Context) {
 	r := context.SeparateResponse()
 	r.SetUsername("Homer Simpson")
 	r.SetIconURL("https://media1.giphy.com/media/sTUWqCKtxd01W/200.gif#7")

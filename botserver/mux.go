@@ -1,4 +1,4 @@
-package server
+package botserver
 
 import (
 	"regexp"
@@ -14,7 +14,7 @@ type Mux struct {
 type muxEntry struct {
 	h            Handler
 	pattern      *regexp.Regexp
-	integrations *Integration
+	integrations Trigger
 }
 
 // Handler will perform action based to an incoming webhook context
@@ -26,9 +26,9 @@ func NewMux() *Mux {
 	return &d
 }
 
-func (d *Mux) add(in *Integration, pattern string, h Handler) error {
+func (d *Mux) add(t Trigger, pattern string, h Handler) error {
 	d.mu.Lock()
-	n := in.Name
+	n := t.Name()
 	if d.m[n] == nil {
 		d.m[n] = []*muxEntry{}
 	}
@@ -37,7 +37,7 @@ func (d *Mux) add(in *Integration, pattern string, h Handler) error {
 		d.mu.Unlock()
 		return err
 	}
-	d.m[n] = append(d.m[n], &muxEntry{h, re, in})
+	d.m[n] = append(d.m[n], &muxEntry{h, re, t})
 	d.mu.Unlock()
 	return nil
 }

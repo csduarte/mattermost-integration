@@ -1,70 +1,51 @@
 {
-  "host": "http://localhost:7000",
-  "bindAddress": "127.0.0.1",
-  "bindPort": "7000",
-  "TLSCert": "",
-  "TLSKey": "",
-  "integrations": [
-    {
-      "name": "weatherbot",
-      "server": "http://localhost:8065",
+  "host": {
+    "url": "http://localhost:7000",
+    "bindAddress": "127.0.0.1",
+    "bindPort": "7000",
+    "TLSCert": "",
+    "TLSKey": "",
+  },
+  "servers": {
+    "localhost": {
+      "url": "http://localhost:8065",
       "teamName": "team",
       "username": "username",
       "password": "password",
-      "fromMattermost": {
-        "triggerWords": ["weather"],
-        "triggerExact": true,
-        "incomingRoutes": ["/incoming1"]
-      },
-      "toMattermost": {
-        "channelName": "town-square"
-      }
+      "channelName": "town-square"
     },
-    {
-      "name": "giphy",
-      "server": "http://localhost:8065",
-      "teamName": "team",
-      "username": "username",
-      "password": "password",
-      "fromMattermost": {
-        "triggerWords": ["giphy"],
-        "triggerExact": true,
-        "incomingRoutes": ["/giphy"]
-      },
-      "toMattermost": {
-        "channelName": "town-square"
-      }
+  },
+  "triggers": {
+    "weatherbot": {
+      "type": "MattermostTrigger",
+      "channelName": "",
+      "description": "",
+      "displayName": "WeatherBot",
+      "incomingRoutes": ["/incoming1"],
+      "token": "xkxyit65m7gmumaimi6c55gpwy",
+      "triggerWords": ["weather"],
+      "triggerExact": true,
+      "callbacks":["http://localhost:7000/weather"],
     },
-    {
-      "name": "mint",
-      "server": "http://localhost:8065",
-      "teamName": "team",
-      "username": "username",
-      "password": "password",
-      "fromMattermost": {
-        "triggerWords": ["mint"],
-        "triggerExact": true,
-        "incomingRoutes": ["/mint"]
-      },
-      "toMattermost": {
-        "channelName": "town-square"
-      }
+    "giphy": {
+      "type": "mattermost",
+      "channelName": "",
+      "description": "",
+      "displayName": "WeatherBot",
+      "incomingRoutes":["http://localhost:7000/giphy"],
+      "token": "xkxyit65m7gmumaimi6c55gpwy",
+      "triggerWords": ["giphy"],
+      "triggerExact": true,
     },
-    {
-      "name": "homer",
+    "homer": {
+      "type": "mattermost",
+      "channelName": "",
+      "description": "",
       "displayName": "Homer Simpson",
-      "server": "http://localhost:8065",
-      "teamName": "team",
-      "username": "username",
-      "password": "password",
-      "fromMattermost": {
-        "triggerWords": ["homer"],
-        "triggerExact": true,
-        "incomingRoutes": ["/homer"]
-      },
-      "toMattermost": {
-        "channelName": "town-square"
-      }
-    }
-  ]
+      "incomingRoutes":["http://localhost:7000/homer"],
+      "token": "xkxyit65m7gmumaimi6c55gpwy",
+      "triggerWords": ["homer"],
+      "triggerExact": true,
+    },
+  },
 }
