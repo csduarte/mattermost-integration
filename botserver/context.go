@@ -1,4 +1,4 @@
-package server
+package botserver
 
 import (
 	"net/http"
@@ -10,7 +10,7 @@ import (
 type Context struct {
 	w        *http.ResponseWriter
 	r        *http.Request
-	i        *Integration
+	i        *Trigger
 	response *platform.IncomingWebhookRequest
 	payload  *platform.OutgoingWebhookPayload
 }
@@ -25,17 +25,24 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
 }
 
 // SeparateResponse will create a full featured ToMM webhook
-func (c *Context) SeparateResponse() *MattermostMessage {
-	m := NewMattermostMessage(c.payload.ChannelName)
-	m.integration = c.i
-	m.Username = c.i.Name
+func (c *Context) SeparateResponse() *Message {
+	m := NewMessage(c.payload.ChannelName)
+	// m.trigger = c.t
+	// m.Username = c.t.Config.DisplayName
 	return m
 }
 
+//
 // SetIconURL to Response
 func (c *Context) SetIconURL(url string) {
 	c.ensureResponse()
 	c.response.IconURL = url
+}
+
+// SetUsername as string
+func (c *Context) SetUsername(name string) {
+	c.ensureResponse()
+	c.response.Username = name
 }
 
 // SetMessage to given context
@@ -44,13 +51,17 @@ func (c *Context) SetMessage(b string) {
 	c.response.Text = b
 }
 
-func (c *Context) addIntegration(i *Integration) {
-	c.i = i
-}
+// func (c *Context) addIntegration(i *Integration) {
+// 	c.i = i
+// }
 
 func (c *Context) ensureResponse() {
-	if c.response == nil {
-		c.response = &platform.IncomingWebhookRequest{}
-		c.response.Username = "Bot!"
-	}
+	// 	if c.response == nil {
+	// 		c.response = &platform.IncomingWebhookRequest{}
+	// 		if c.i.Config.DisplayName != "" {
+	// 			c.response.Username = c.i.Config.DisplayName
+	// 		} else {
+	// 			c.response.Username = c.i.Name
+	// 		}
+	// 	}
 }

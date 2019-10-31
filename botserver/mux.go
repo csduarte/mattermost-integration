@@ -1,6 +1,9 @@
-package server
+package botserver
 
-import "sync"
+import (
+	"regexp"
+	"sync"
+)
 
 // Mux takes the singles from the server and maps to muxEntry
 type Mux struct {
@@ -10,8 +13,8 @@ type Mux struct {
 
 type muxEntry struct {
 	h            Handler
-	pattern      string
-	integrations *Integration
+	pattern      *regexp.Regexp
+	integrations Trigger
 }
 
 // Handler will perform action based to an incoming webhook context
@@ -23,12 +26,18 @@ func NewMux() *Mux {
 	return &d
 }
 
-func (d *Mux) add(in *Integration, pattern string, h Handler) {
+func (d *Mux) add(t Trigger, pattern string, h Handler) error {
 	d.mu.Lock()
-	n := in.Name
+	n := t.Name()
 	if d.m[n] == nil {
 		d.m[n] = []*muxEntry{}
 	}
-	d.m[n] = append(d.m[n], &muxEntry{h, pattern, in})
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		d.mu.Unlock()
+		return err
+	}
+	d.m[n] = append(d.m[n], &muxEntry{h, re, t})
 	d.mu.Unlock()
+	return nil
 }
